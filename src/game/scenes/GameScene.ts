@@ -303,7 +303,7 @@ export class GameScene extends Phaser.Scene {
     this.perceptionGraphics.clear();
     const facingAngle = Math.atan2(this.guardFacing.y, this.guardFacing.x);
     const halfFieldOfView = FIELD_OF_VIEW / 2;
-    this.perceptionGraphics.fillStyle(vision.visible ? 0x73c991 : 0x6b8afd, 0.16);
+    this.perceptionGraphics.fillStyle(vision.visible ? 0x73c991 : 0x6b8afd, 0.3);
     this.perceptionGraphics.beginPath();
     this.perceptionGraphics.moveTo(this.guard.x, this.guard.y);
     this.perceptionGraphics.arc(
