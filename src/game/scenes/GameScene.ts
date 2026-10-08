@@ -296,6 +296,8 @@ export class GameScene extends Phaser.Scene {
     this.perceptionState = frame.state;
 
     this.drawPerception(frame.vision);
+    // Cambiar alpha del guardia según visibilidad: 1 = viendo, 0.7 = sin visión
+    this.guard.setAlpha(frame.vision.visible ? 1 : 0.7);
     this.updateTelemetry(time, frame.vision, frame.soundHeard);
   }
 
