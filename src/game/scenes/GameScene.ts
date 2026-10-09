@@ -296,6 +296,12 @@ export class GameScene extends Phaser.Scene {
     this.perceptionState = frame.state;
 
     this.drawPerception(frame.vision);
+    // H4.4: Efecto visual de alerta intensa cuándo el guardia ve al jugador
+    if (frame.vision.visible) {
+      this.guard.setFillStyle(0xff0000);
+    } else {
+      this.guard.setFillStyle(0x6b8afd);
+    }
     // Cambiar alpha del guardia según visibilidad: 1 = viendo, 0.7 = sin visión
     this.guard.setAlpha(frame.vision.visible ? 1 : 0.7);
     this.updateTelemetry(time, frame.vision, frame.soundHeard);
