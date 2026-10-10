@@ -302,6 +302,8 @@ export class GameScene extends Phaser.Scene {
     } else {
       this.guard.setFillStyle(0x6b8afd);
     }
+    // H4.5: Zoom dinámico de tensión cuándo el guardia ve al jugador
+    this.cameras.main.setZoom(frame.vision.visible ? 1.1 : 1.0);
     // Cambiar alpha del guardia según visibilidad: 1 = viendo, 0.7 = sin visión
     this.guard.setAlpha(frame.vision.visible ? 1 : 0.7);
     this.updateTelemetry(time, frame.vision, frame.soundHeard);
