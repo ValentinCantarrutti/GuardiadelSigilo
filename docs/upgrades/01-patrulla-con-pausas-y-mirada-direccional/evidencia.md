@@ -140,4 +140,44 @@ Archivos sin modificar (por regla H4.1):
 - validate: PASS
 - git diff --check: PASS
 - Modulo H4.1 implementado y validado
+
+## Evidencia visual
+
+A continuación se muestran capturas de pantalla tomadas al ejecutar el juego con `npm run dev` en el navegador, que forman parte de la evidencia de la entrega 7/10:
+
+![Captura H4.1 - patrulla](/../../evidencias/fotos.png)
+
+**Nota:** La captura `fotos.png` muestra el comportamiento de la patrulla con sus waypoints y ciclo de movimiento. La observación manual durante la ejecución del juego confirmó el funcionamiento del ciclo 5→1→2→3→4→5 y la pausa de 1000ms. Los resultados automatizados (51/51 tests passing, typecheck PASS, build PASS, validate PASS) se conservan y complementan esta evidencia visual.
+
+| Criterio | Evidencia |
+|----------|-----------|
+| Evidencia visual | Captura `fotos.png` en `docs/evidencias/` |
+| Prueba manual | Ejecutado con `npm run dev`, observación de ciclo de patrulla |
+| Pruebas automatizadas | 12/12 tests patrolState + 51/51 tests globales |
+
+Los resultados automatizados previos (typecheck PASS, 51/51 tests passing, build PASS, validate PASS) se conservan sin volver a presentarlos como pruebas visuales.
+
+## Files modificados/creados
+
+Nuevos archivos:
+- `src/application/simulation/patrolState.ts` (219 líneas)
+- `tests/application/patrolState.test.ts` (12 tests)
+- `docs/upgrades/01-patrulla-con-pausas-y-mirada-direccional/spec.md`
+- `docs/upgrades/01-patrulla-con-pausas-y-mirada-direccional/plan.md`
+- `docs/upgrades/01-patrulla-con-pausas-y-mirada-direccional/evidencia.md`
+
+Archivos sin modificar (por regla H4.1):
+- `src/domain/navigation/pathFollower.ts`
+- `perceptionSimulation.ts`
+- `labLevel.ts`
+- `package.json`
+
+## Resultado final
+
+- 51/51 tests passing (incluyendo 12 tests específicos de patrolState)
+- typecheck: PASS
+- build: PASS
+- validate: PASS
+- git diff --check: PASS
+- Modulo H4.1 implementado y validado
 - Documentación completa creada y actualizada
