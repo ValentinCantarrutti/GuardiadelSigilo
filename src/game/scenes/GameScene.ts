@@ -27,12 +27,14 @@ const VISION_RANGE = 220;
 const FIELD_OF_VIEW = Math.PI / 2;
 const SOUND_RADIUS = 190;
 const SOUND_DURATION_MS = 800;
+
 const STATUS_LABELS: Readonly<Record<SearchStatus, string>> = {
   success: "EXITO",
   unreachable: "INALCANZABLE",
   "invalid-start": "INICIO INVALIDO",
   "invalid-goal": "DESTINO INVALIDO",
 };
+
 const VISION_LABELS: Readonly<Record<VisionReason, string>> = {
   visible: "VISIBLE",
   "out-of-range": "FUERA DE RANGO",
@@ -117,15 +119,18 @@ export class GameScene extends Phaser.Scene {
 
     this.perceptionGraphics = this.add.graphics().setDepth(1);
     this.navigationGraphics = this.add.graphics().setDepth(2);
+
     const guardPosition = cellCenter(GUARD_START, TILE_SIZE);
     this.guard = this.add
       .circle(guardPosition.x, guardPosition.y, 11, 0x6b8afd)
       .setStrokeStyle(2, 0xb9c5ff)
       .setDepth(4);
+
     this.targetMarker = this.add
       .circle(0, 0, 10, 0x000000, 0)
       .setStrokeStyle(3, 0x73c991)
       .setDepth(5);
+
     this.lastKnownMarker = this.add
       .circle(0, 0, 7, 0x000000, 0)
       .setStrokeStyle(2, 0xe16969)
@@ -199,6 +204,7 @@ export class GameScene extends Phaser.Scene {
     for (let x = 0; x <= GRID_WIDTH; x += 1) {
       graphics.lineBetween(x * TILE_SIZE, 0, x * TILE_SIZE, GRID_HEIGHT * TILE_SIZE);
     }
+
     for (let y = 0; y <= GRID_HEIGHT; y += 1) {
       graphics.lineBetween(0, y * TILE_SIZE, GRID_WIDTH * TILE_SIZE, y * TILE_SIZE);
     }
@@ -217,6 +223,7 @@ export class GameScene extends Phaser.Scene {
       this.navigationGoal,
       this.navigationAlgorithm,
     );
+
     this.drawSearchResult(result);
     this.guardWaypoints = result.status === "success"
       ? result.path.map((point) => cellCenter(point, TILE_SIZE))
@@ -229,6 +236,7 @@ export class GameScene extends Phaser.Scene {
 
     const cost = result.totalCost === null ? "-" : String(result.totalCost);
     const algorithm = result.algorithm === "astar" ? "A*" : "BFS";
+
     this.navigationSummary = [
       `${algorithm} / ${STATUS_LABELS[result.status]}`,
       `costo ${cost} | expandidos ${result.expandedNodes}`,
@@ -239,6 +247,7 @@ export class GameScene extends Phaser.Scene {
   private drawSearchResult(result: SearchResult): void {
     this.navigationGraphics.clear();
     this.navigationGraphics.fillStyle(0x3b819c, 0.22);
+
     for (const point of result.explored) {
       this.navigationGraphics.fillRect(
         point.x * TILE_SIZE + 3,
@@ -257,10 +266,12 @@ export class GameScene extends Phaser.Scene {
     this.navigationGraphics.lineStyle(4, 0x62d0e8, 0.9);
     this.navigationGraphics.beginPath();
     this.navigationGraphics.moveTo(firstCenter.x, firstCenter.y);
+
     for (const point of result.path.slice(1)) {
       const center = cellCenter(point, TILE_SIZE);
       this.navigationGraphics.lineTo(center.x, center.y);
     }
+
     this.navigationGraphics.strokePath();
   }
 
@@ -272,6 +283,7 @@ export class GameScene extends Phaser.Scene {
       this.nextWaypoint,
       GUARD_SPEED * delta / 1000,
     );
+
     this.nextWaypoint = movement.nextWaypoint;
     this.guard.setPosition(movement.position.x, movement.position.y);
 
@@ -293,18 +305,17 @@ export class GameScene extends Phaser.Scene {
       fieldOfViewRadians: FIELD_OF_VIEW,
       timeMs: time,
     });
-    this.perceptionState = frame.state;
 
+    this.perceptionState = frame.state;
     this.drawPerception(frame.vision);
-    // H4.4: Efecto visual de alerta intensa cuándo el guardia ve al jugador
+
     if (frame.vision.visible) {
       this.guard.setFillStyle(0xff0000);
     } else {
       this.guard.setFillStyle(0x6b8afd);
     }
-    // H4.5: Zoom dinámico de tensión cuándo el guardia ve al jugador
+
     this.cameras.main.setZoom(frame.vision.visible ? 1.1 : 1.0);
-    // Cambiar alpha del guardia según visibilidad: 1 = viendo, 0.7 = sin visión
     this.guard.setAlpha(frame.vision.visible ? 1 : 0.7);
     this.updateTelemetry(time, frame.vision, frame.soundHeard);
   }
@@ -337,6 +348,7 @@ export class GameScene extends Phaser.Scene {
 
     const lastKnown = this.perceptionState.memory.lastKnownPosition;
     this.lastKnownMarker.setVisible(lastKnown !== null);
+
     if (lastKnown) {
       this.lastKnownMarker.setPosition(lastKnown.x, lastKnown.y);
     }

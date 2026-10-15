@@ -11,8 +11,9 @@ export function calculateRoute(
   start: GridPoint,
   goal: GridPoint,
   algorithm: SearchAlgorithm,
+  profileB = false,
 ): SearchResult {
   return algorithm === "astar"
-    ? findPathAStar(map, start, goal)
+    ? findPathAStar(map, start, goal, profileB)
     : findPathBfs(map, start, goal);
 }

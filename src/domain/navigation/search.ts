@@ -9,6 +9,7 @@ export interface SearchResult {
   readonly status: SearchStatus;
   readonly path: readonly GridPoint[];
   readonly totalCost: number | null;
+  readonly weightedCost?: number;
   readonly expandedNodes: number;
   readonly maximumFrontier: number;
   readonly explored: readonly GridPoint[];
@@ -19,6 +20,13 @@ interface AStarNode {
   readonly cost: number;
   readonly heuristic: number;
   readonly order: number;
+}
+
+const EXPOSED_CELLS = new Set(["1,1", "2,1", "3,1"]);
+const EXPOSED_CELL_COST = 5;
+
+function cellCost(point: GridPoint, profileB: boolean): number {
+  return profileB && EXPOSED_CELLS.has(cellKey(point)) ? EXPOSED_CELL_COST : 1;
 }
 
 export function findPathBfs(map: GridMap, start: GridPoint, goal: GridPoint): SearchResult {
@@ -61,7 +69,12 @@ export function findPathBfs(map: GridMap, start: GridPoint, goal: GridPoint): Se
   return failureResult("bfs", "unreachable", explored, maximumFrontier);
 }
 
-export function findPathAStar(map: GridMap, start: GridPoint, goal: GridPoint): SearchResult {
+export function findPathAStar(
+  map: GridMap,
+  start: GridPoint,
+  goal: GridPoint,
+  profileB = false,
+): SearchResult {
   const invalid = validateEndpoints("astar", map, start, goal);
   if (invalid) {
     return invalid;
@@ -69,13 +82,19 @@ export function findPathAStar(map: GridMap, start: GridPoint, goal: GridPoint): 
 
   let insertionOrder = 0;
   const startKey = cellKey(start);
+  const startCost = 0;
   const frontier = new Map<string, AStarNode>([
     [
       startKey,
-      { point: start, cost: 0, heuristic: manhattanDistance(start, goal), order: insertionOrder },
+      {
+        point: start,
+        cost: startCost,
+        heuristic: manhattanDistance(start, goal),
+        order: insertionOrder,
+      },
     ],
   ]);
-  const bestCosts = new Map<string, number>([[startKey, 0]]);
+  const bestCosts = new Map<string, number>([[startKey, startCost]]);
   const parents = new Map<string, GridPoint>();
   const explored: GridPoint[] = [];
   const closed = new Set<string>();
@@ -89,7 +108,15 @@ export function findPathAStar(map: GridMap, start: GridPoint, goal: GridPoint): 
     explored.push(current.point);
 
     if (samePoint(current.point, goal)) {
-      return successResult("astar", start, goal, parents, explored, maximumFrontier);
+      return successResult(
+        "astar",
+        start,
+        goal,
+        parents,
+        explored,
+        maximumFrontier,
+        current.cost,
+      );
     }
 
     for (const neighbor of walkableNeighbors(map, current.point)) {
@@ -98,8 +125,9 @@ export function findPathAStar(map: GridMap, start: GridPoint, goal: GridPoint): 
         continue;
       }
 
-      const candidateCost = current.cost + 1;
+      const candidateCost = current.cost + cellCost(neighbor, profileB);
       const knownCost = bestCosts.get(neighborKey);
+
       if (knownCost === undefined || candidateCost < knownCost) {
         insertionOrder += 1;
         bestCosts.set(neighborKey, candidateCost);
@@ -140,6 +168,7 @@ function lowestPriorityNode(frontier: ReadonlyMap<string, AStarNode>): AStarNode
   for (const candidate of frontier.values()) {
     const candidateScore = candidate.cost + candidate.heuristic;
     const selectedScore = selected ? selected.cost + selected.heuristic : Number.POSITIVE_INFINITY;
+
     if (
       !selected
       || candidateScore < selectedScore
@@ -167,13 +196,16 @@ function successResult(
   parents: ReadonlyMap<string, GridPoint>,
   explored: readonly GridPoint[],
   maximumFrontier: number,
+  weightedCost?: number,
 ): SearchResult {
   const path = reconstructPath(start, goal, parents);
+
   return {
     algorithm,
     status: "success",
     path,
     totalCost: path.length - 1,
+    ...(weightedCost === undefined ? {} : { weightedCost }),
     expandedNodes: explored.length,
     maximumFrontier,
     explored,
