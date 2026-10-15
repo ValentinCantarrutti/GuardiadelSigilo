@@ -117,3 +117,27 @@ Este comando ejecuta el chequeo de tipos, las pruebas y la compilación de produ
 El perfil B utiliza una máscara fija y costos estáticos. No representa detección real, cambios de visibilidad ni conocimiento del guardia. Las métricas se documentarán únicamente cuando estén disponibles en los resultados reales de la implementación.
 
 La aprobación de esta especificación y de su plan corresponde a la persona responsable del proyecto antes de considerar definitiva la implementación.
+
+## 11. Criterios comunes de aceptación
+
+- **BASE-01 — Contrato:** quedan definidos el mapa, las coordenadas, los movimientos permitidos y el formato del resultado.
+- **BASE-02 — Comparación:** BFS y A* se contrastan con el mismo mapa, inicio y objetivo. Las rutas y métricas se registran únicamente cuando se obtienen de una ejecución verificable.
+- **BASE-03 — Algoritmos:** se documentan las diferencias entre BFS, A*, DFS y Dijkstra, sin afirmar que DFS o Dijkstra están implementados.
+- **BASE-04 — Casos límite:** se verifican ruta válida, inicio igual al objetivo, objetivo inaccesible y extremos inválidos.
+- **BASE-05 — Decisión humana:** la variante B se selecciona explícitamente y las zonas expuestas son preferencias de costo, no obstáculos.
+- **BASE-06 — Revisión de cambios:** se revisa el diff para detectar modificaciones fuera del alcance, regresiones o cambios no autorizados.
+- **BASE-07 — Validación reproducible:** se ejecuta `npm run validate` y se registran los resultados reales.
+- **BASE-08 — Entrega:** se registran repositorio, rama, commit final y limitaciones pendientes.
+
+### Estado de aceptación
+
+BASE-01: documentado; requiere revisión final del contrato.  
+BASE-02: parcial; falta adjuntar una comparación independiente de las rutas BFS y A*.  
+BASE-03: documentado conceptualmente.  
+BASE-04: cubierto por pruebas existentes; confirmar los casos contra la salida de la suite.  
+BASE-05: decisión de variante B documentada.  
+BASE-06: requiere revisión final del diff.  
+BASE-07: validación ejecutada con 57 pruebas aprobadas y compilación exitosa.  
+BASE-08: registrar el hash del commit definitivo después de cerrar los cambios.
+
+Estos estados no sustituyen la revisión humana ni implican que una comprobación pendiente ya se haya realizado.
