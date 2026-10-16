@@ -1,299 +1,267 @@
+**Estado:** Pendiente de revisión y aceptación humana
+**Variante:** B - evitar zonas expuestas
+**Plan:** `docs/practica-navegacion/plan.md`
+**Evidencia:** `docs/practica-navegacion/evidencia.md`
+**Repositorio:** `https://github.com/ValentinCantarrutti/GuardiadelSigilo`
+**Último commit publicado de referencia:** `b34e385` - `Completa evidencia y casos limite de navegacion`
+**Commit inicial:** `65e3de52ca78213e00d3b42674fcfb799492e197`
+**Rutas relevantes:** `src/domain/navigation/search.ts`, `src/application/simulation/navigationDemo.ts` y `tests/navigation/`.
+**Validación:** `npm.cmd run validate`.
 # Spec: práctica de navegación — 7 al 14/10/2026
 
-**Estado:** Borrador para revisión y aprobación humana
-**Repositorio:** https://github.com/ValentinCantarrutti/GuardiadelSigilo
-**Commit inicial:** 65e3de52ca78213e00d3b42674fcfb799492e197
-**Variante elegida:** B — evitar zonas expuestas
-**Rutas relevantes:** `src/domain/navigation/search.ts`, `src/application/simulation/navigationDemo.ts`, `tests/navigation/` y el consumidor real de navegación, por confirmar durante la revisión del código.
-**Comandos de referencia:** `npm run validate`, `npm run typecheck` y `npm run test:run`, sujetos a la confirmación de su definición en `package.json`.
+## Estado del documento
+
+Especificación de la práctica de navegación del laboratorio Guardia de Sigilo. Este documento describe el comportamiento esperado, los criterios de aceptación y las limitaciones conocidas.
+
+La implementación y la documentación deben evaluarse por separado: que un criterio esté especificado o documentado no implica, por sí solo, que esté aprobado.
 
 ## 1. Objetivo
 
-Comparar BFS y A* sobre un fixture común y verificar una única mejora de navegación: preferir rutas que eviten zonas expuestas, manteniendo el contrato previo y separando búsqueda, seguimiento y decisión.
+Documentar y verificar la navegación del laboratorio mediante BFS y A*, contemplar casos límite y comparar ambos algoritmos con una variante opcional de costos para determinadas celdas.
 
-La mejora debe conectarse con una entrada de navegación o simulación existente. Una prueba aislada del algoritmo no demuestra por sí sola la integración con el consumidor.
+La práctica debe mantener una relación trazable entre:
+
+- requisito;
+- especificación;
+- implementación;
+- prueba o evidencia;
+- resultado de validación;
+- revisión y decisión humana.
 
 ## 2. Alcance
 
-- Explorar el repositorio y registrar las capacidades existentes.
-- Establecer la línea base y comparar BFS y A* con el mismo fixture.
-- Completar las trazas conceptuales de DFS y Dijkstra, sin implementarlos.
-- Verificar los casos comunes y sus límites.
-- Adaptar esta especificación al contrato real del proyecto.
-- Aprobar la especificación y el plan antes de autorizar modificaciones adicionales de código.
-- Implementar o verificar únicamente la variante B.
-- Comprobar la integración con el consumidor real.
-- Ejecutar las pruebas y la validación final.
-- Revisar el diff, registrar las limitaciones y preparar la entrega.
+Esta práctica comprende:
+
+- inspección de la implementación existente;
+- comparación de BFS y A*;
+- verificación de rutas y costos;
+- pruebas de casos límite;
+- incorporación y comprobación de una variante opcional de costos;
+- documentación de algoritmos conceptuales complementarios;
+- registro de validación y limitaciones.
 
 ## 3. Fuera de alcance
 
-- Implementar DFS o Dijkstra.
-- Desarrollar las variantes A o C.
-- Modificar la FSM, la percepción, la memoria, los sensores o los controles del guardia.
-- Agregar dependencias, un editor de mapas, una interfaz nueva o un motor nuevo.
-- Rehacer capacidades que ya existen sin una incompatibilidad demostrada.
-- Eliminar cambios previos, corregir fallos ajenos a la práctica sin autorización o modificar pruebas para ocultar errores.
-- Crear commits o publicar automáticamente.
+No se considera parte de esta práctica:
 
-## 4. Decisión humana: variante B
+- rediseñar el juego completo;
+- modificar la arquitectura general sin necesidad demostrada;
+- incorporar dependencias sin autorización;
+- cambiar la mecánica de sigilo;
+- publicar cambios adicionales sin revisión;
+- afirmar que una característica funciona en el juego si solo fue comprobada mediante una función o prueba aislada.
 
-Se selecciona **evitar zonas expuestas** mediante una máscara fija de tres celdas:
+## 4. Variante B: costos de entrada
 
-- `(1,1)`
-- `(2,1)`
-- `(3,1)`
+La variante B permite asignar un costo mayor a determinadas celdas transitables.
 
-El costo de entrada es:
+Configuración de referencia:
 
-- Celda normal: `1`.
-- Celda expuesta: `5`, equivalente a un costo base de `1` más una penalización de `4`.
+- costo normal: `1`;
+- costo de las celdas expuestas `(1,1)`, `(2,1)` y `(3,1)`: `5`;
+- la celda inicial no se cobra como costo de entrada;
+- la variante debe poder activarse o desactivarse explícitamente.
 
-La celda inicial no suma costo. La máscara expresa una preferencia de navegación, no un conjunto de obstáculos ni una probabilidad de detección.
+El objetivo es comprobar que la búsqueda puede preferir un recorrido más largo cuando su costo total resulta menor.
 
-La mejora no consulta si el jugador está oculto, no cambia la percepción o memoria del guardia y no modifica la FSM.
+La variante debe conservar el comportamiento normal cuando está desactivada.
 
-Antes de aprobar la implementación, se debe comprobar que la representación del costo y la configuración del perfil sean compatibles con las capacidades reales del repositorio.
+## 5. Contrato de navegación
 
-## 5. Contrato común de navegación
+La búsqueda recibe un mapa, un punto inicial y un destino, y debe devolver un resultado que permita determinar si existe una ruta.
 
-- El mapa se representa mediante una cuadrícula.
-- El origen de coordenadas está en la esquina superior izquierda.
-- Solo se permiten movimientos cardinales, sin diagonales.
-- El camino incluye el inicio y el objetivo cuando existe una ruta válida.
-- Los pasos corresponden a aristas recorridas: `pasos = path.length - 1`.
-- `totalCost`, si el contrato utiliza ese campo para representar los pasos, debe coincidir con la cantidad de movimientos.
-- `weightedCost`, si está disponible, suma los costos de entrada de las celdas posteriores al inicio. No cobra la celda inicial.
-- BFS conserva su semántica unitaria y no se presenta como un algoritmo que minimiza costos ponderados.
-- A* debe usar una heurística compatible con los costos reales. La distancia Manhattan es admisible cuando el costo mínimo de entrada es `1` y solo se permiten movimientos cardinales.
-- El inicio igual al objetivo debe producir un éxito inequívoco, cero movimientos y costo ponderado cero si este último campo está disponible.
-- Los extremos inválidos y la ausencia de ruta deben distinguirse según el contrato existente.
-- No se debe imponer un nuevo formato de retorno solo para copiar un ejemplo. Se documentará el comportamiento real y se verificará que los resultados sean inequívocos.
+Cuando existe una ruta, el resultado debe permitir verificar:
 
-## 6. Fixture común para BFS y A*
+- el punto inicial y el destino;
+- la secuencia de celdas;
+- la cantidad de pasos;
+- el costo total;
+- los datos de exploración disponibles, como nodos expandidos y tamaño máximo de la frontera.
 
-El fixture de referencia es una cuadrícula abierta de `5 × 3`:
+Cuando no existe una ruta, el resultado debe indicar el fallo sin presentar una ruta válida ficticia.
 
-- Coordenadas válidas: `x = 0..4`, `y = 0..2`.
-- Inicio: `S = (0,1)`.
-- Meta: `G = (4,1)`.
-- Todas las celdas son transitables.
-- Costo de entrada unitario.
-- Movimientos: arriba, abajo, izquierda y derecha.
-- No se permiten diagonales.
+La celda inicial no se incluye en la suma de costos de entrada. Los costos se acumulan al ingresar a las celdas posteriores.
 
-La ruta directa contiene cinco puntos y cuatro movimientos. Con costos unitarios, su costo es `4`.
+## 6. Escenario común de comparación
 
-BFS y A* deben ejecutarse con el mismo mapa, inicio y meta. Se registrarán el estado, la ruta, los pasos, el costo y las métricas de exploración que la implementación exponga.
+Se utiliza un mapa abierto de `5 × 3`, con:
 
-Si una métrica no está disponible, se registrará como no disponible; no se agregará instrumentación obligatoria ni se inventarán resultados.
+- inicio: `(0,1)`;
+- destino: `(4,1)`;
+- recorrido directo esperado: cuatro movimientos.
 
-### Comparación ya registrada
+### 6.1. Comparación con costos normales
 
-Existe una prueba de comparación en `tests/navigation/comparison.evidence.test.ts`. En una ejecución previamente observada, los resultados fueron:
+Con la variante B desactivada, el recorrido directo tiene:
+
+- pasos: `4`;
+- costo total: `4`.
+
+En la ejecución registrada, BFS y A* encuentran una ruta de cuatro pasos y costo cuatro.
+
+Datos registrados:
 
 | Métrica | BFS | A* |
 |---|---:|---:|
-| Estado | `success` | `success` |
-| Movimientos | 4 | 4 |
-| Costo unitario | 4 | 4 |
+| Resultado | Ruta encontrada | Ruta encontrada |
+| Pasos | 4 | 4 |
+| Costo | 4 | 4 |
 | Nodos expandidos | 12 | 5 |
 | Frontera máxima | 4 | 9 |
 
-Ambos resultados registraron la ruta directa desde `(0,1)` hasta `(4,1)`.
+Estos datos corresponden al escenario y a la ejecución documentados; no constituyen una afirmación de que A* siempre expanda menos nodos en cualquier mapa.
 
-Estos valores pertenecen a esa ejecución y a ese fixture. Antes de considerarlos evidencia definitiva, se debe conservar la prueba correspondiente, verificar su salida y registrar su estado en Git. No deben generalizarse a otros mapas.
+### 6.2. Comparación con la variante B
+
+Con la variante B activada, las celdas expuestas tienen costo `5` y el resto de las celdas transitables tiene costo `1`.
+
+En el escenario de referencia:
+
+- el recorrido directo tiene cuatro movimientos y costo `16`;
+- una alternativa de seis movimientos evita las celdas expuestas y tiene costo `6`.
+
+El resultado esperado es que una búsqueda que optimiza el costo seleccione la alternativa de menor costo, aunque tenga más pasos.
+
+Esta comparación debe comprobarse con una prueba reproducible. La existencia de esta variante en una función de simulación no significa que esté activada en la escena jugable.
 
 ## 7. Casos comunes y límites
 
-### 7.1 Ruta válida
+### BASE-04: casos de navegación
 
-Utilizar dos coordenadas válidas conectadas por celdas transitables. Verificar el estado de éxito y que cada movimiento del camino sea cardinal y válido.
+Se deben contemplar los siguientes escenarios:
 
-### 7.2 Inicio igual a meta
+1. **Ruta válida:** existe una ruta entre inicio y destino.
+2. **Inicio igual al destino:** la búsqueda devuelve una ruta válida sin movimientos y con costo cero.
+3. **Destino inalcanzable:** un bloqueo impide llegar al destino y la búsqueda informa que no hay ruta.
+4. **Inicio inválido:** la búsqueda rechaza una posición inicial inválida.
+5. **Destino inválido:** la búsqueda rechaza una posición de destino inválida.
 
-Usar la misma coordenada para inicio y meta. El resultado debe representar éxito, un camino de un solo punto y cero movimientos. Si se informa costo ponderado, debe ser cero.
+Los casos de inicio y destino inválidos deben tratarse de manera controlada, sin producir una ruta válida ficticia.
 
-### 7.3 Destino inaccesible
+## 8. Requisitos de la variante B
 
-En el fixture común, bloquear `(2,0)`, `(2,1)` y `(2,2)`, manteniendo libre el objetivo.
+### B-01 — Costos configurables
 
-El resultado debe indicar que no existe ruta. No debe confundirse con un extremo inválido.
+Las celdas expuestas deben tener costo de entrada `5`; las celdas normales deben conservar costo `1`.
 
-### 7.4 Inicio inválido
+### B-02 — Activación opcional
 
-Usar `(-1,1)` como inicio y una meta válida. Registrar el resultado que establece el contrato real.
+La variante B debe poder activarse y desactivarse explícitamente.
 
-### 7.5 Meta inválida
+### B-03 — Comparación de rutas
 
-Usar `(5,1)` como meta y un inicio válido. Registrar el resultado que establece el contrato real.
+Con la variante activada, la búsqueda debe poder preferir una ruta de mayor longitud y menor costo total cuando el escenario lo justifique.
 
-Los cinco casos deben contrastarse con las pruebas existentes. Si un resultado no cumple el contrato, conservar la reproducción y consultar antes de ampliar el alcance.
+### B-AC1 — Cálculo de costos
 
-## 8. Variante B: requisitos y criterios de aceptación
+La suma de costos debe coincidir con las celdas ingresadas durante el recorrido, sin cobrar la celda inicial.
 
-### B-01 — Máscara fija
+### B-AC2 — Variante desactivada
 
-Utilizar la máscara expuesta definida en esta especificación. Las tres celdas siguen siendo transitables y su costo de entrada es `5`. Las celdas normales tienen costo de entrada `1`.
+Al desactivar la variante, la navegación debe conservar los costos normales y el comportamiento de referencia.
 
-No consultar el estado de ocultamiento del jugador ni modificar sensores, percepción o memoria.
+### B-AC3 — Evitación de celdas expuestas
 
-### B-02 — Búsqueda ponderada
+En el escenario de comparación especificado, con la variante activada, la ruta elegida debe evitar el recorrido directo más caro y obtener el costo esperado de `6`.
 
-Reutilizar A* y las capacidades de navegación existentes, o realizar la adaptación mínima que la exploración justifique.
+El caso de inicio igual al destino pertenece a los criterios comunes de navegación y no constituye un criterio B adicional.
 
-Mantener la heurística Manhattan admisible con costo mínimo de entrada `1`. Conservar BFS y el caso unitario anterior.
+## 9. Algoritmos conceptuales complementarios
 
-### B-03 — Consumidor existente
+La documentación debe incluir una explicación conceptual de DFS y Dijkstra, diferenciándolos de los algoritmos que se verifican directamente en la comparación principal.
 
-Conectar el perfil mediante la entrada de navegación o simulación que se confirme en el repositorio. La prueba debe invocar el consumidor real o una prueba de integración de ese consumidor.
+- **DFS:** explora una rama antes de retroceder. No garantiza encontrar la ruta más corta en cantidad de pasos ni la de menor costo.
+- **Dijkstra:** prioriza los caminos de menor costo acumulado y es apropiado cuando los costos de las aristas son no negativos.
+- **BFS:** explora por niveles y encuentra una ruta con el menor número de movimientos cuando todos los movimientos tienen el mismo costo.
+- **A*:** utiliza el costo acumulado y una heurística para orientar la búsqueda. La optimalidad depende de las condiciones de la implementación y de la heurística.
 
-No crear una interfaz nueva ni modificar la FSM para seleccionar el perfil.
+Los ejemplos conceptuales no deben presentarse como funcionalidades implementadas si no hay evidencia de código y pruebas que las respalden.
 
-### B-04 — Desactivación del perfil
+## 10. Requisitos comunes
 
-Al desactivar la penalización, la búsqueda debe utilizar los costos unitarios actuales. No debe reutilizar accidentalmente costos o resultados de una ejecución anterior.
+### BASE-01 — Exploración de la implementación
 
-### B-AC1 — Preferencia por la ruta sin exposición
+Identificar los archivos responsables de la búsqueda, su integración con la simulación y las pruebas existentes antes de proponer cambios.
 
-En el fixture abierto de `5 × 3`, con inicio `(0,1)`, meta `(4,1)` y perfil B:
+### BASE-02 — Comparación BFS/A*
 
-- La ruta directa tiene cuatro movimientos y costo ponderado `16`.
-- La ruta preferida tiene seis movimientos, costo ponderado `6` y no atraviesa ninguna de las tres celdas expuestas.
-- Se acepta el rodeo superior o inferior; no se exige una ruta única en caso de empate.
+Comparar los resultados de BFS y A* en un escenario reproducible, registrando la ruta, los pasos, el costo y las métricas de exploración disponibles.
 
-El costo `16` de la ruta directa corresponde a tres entradas expuestas de costo `5` y una entrada normal de costo `1`. El costo `6` del rodeo corresponde a seis entradas normales de costo `1`.
+### BASE-03 — Algoritmos conceptuales
 
-### B-AC2 — Perfil desactivado
+Documentar DFS y Dijkstra y explicar sus diferencias con BFS y A* sin atribuir a la implementación capacidades no verificadas.
 
-Con la penalización desactivada:
+### BASE-04 — Casos comunes y límites
 
-- La ruta directa tiene cuatro movimientos y costo `4`.
-- Las celdas expuestas siguen siendo transitables.
-- El resultado no depende de costos obsoletos del perfil anterior.
+Verificar ruta válida, inicio igual al destino, destino inalcanzable e inicio o destino inválidos.
 
-### B-AC3 — Integración y regresión
+### BASE-05 — Decisión humana
 
-Una prueba reproducible del consumidor existente debe demostrar que:
+Registrar las limitaciones detectadas y dejar explícita la decisión humana sobre la aceptación de la entrega. La documentación automática no reemplaza esa revisión.
 
-- Con el perfil B activado, se obtiene el rodeo esperado.
-- Con el perfil desactivado, se conserva el comportamiento unitario.
-- BFS conserva su comportamiento anterior.
-- No se modifican la percepción, la memoria ni la FSM.
+### BASE-06 — Trazabilidad
 
-No se considerará demostrado este criterio mediante una prueba exclusiva de la función de búsqueda.
+Relacionar requisitos, criterios de aceptación, archivos, pruebas y evidencias.
 
-## 9. Comparaciones conceptuales
+### BASE-07 — Validación reproducible
 
-### DFS
+Registrar los comandos ejecutados, sus resultados y las advertencias relevantes. Las validaciones deben repetirse después de los cambios que puedan afectarlas.
 
-Grafo dirigido y orden de vecinos:
+### BASE-08 — Integridad del alcance
 
-- `S: [A,B]`
-- `A: [C]`
-- `C: [X]`
-- `X: [G]`
-- `B: [D,E]`
-- `D: [G]`
-- `E: []`
-- `G: []`
+No afirmar que se verificó una característica de juego si solo se comprobó una función aislada. No ocultar limitaciones ni presentar una validación anterior como si fuera la validación final.
 
-Con vecinos apilados en orden inverso para visitar primero el primero de la lista, DFS sigue la traza `S → A → C → X → G`, de cuatro pasos.
+## 11. Criterios de aceptación comunes
 
-BFS puede encontrar `S → B → D → G`, de tres pasos. DFS no garantiza la ruta con menos pasos porque prioriza la profundidad según el orden de exploración, no la distancia mínima.
+### BASE-AC1 — Exploración documentada
 
-### Dijkstra
+La documentación identifica los archivos relevantes y describe el comportamiento observado sin inventar componentes.
 
-Aristas y costos:
+### BASE-AC2 — Comparación reproducible
 
-- `S → A = 1`
-- `A → G = 9`
-- `S → B = 3`
-- `B → G = 3`
+La comparación BFS/A* presenta un escenario común, resultados medibles y una explicación de sus diferencias.
 
-Traza:
+### BASE-AC3 — Casos límite
 
-1. Extraer `S=0`: descubrir `A=1` y `B=3`.
-2. Extraer `A=1`: asignar provisionalmente `G=10`.
-3. Extraer `B=3`: mejorar el costo de `G` a `6`.
-4. Extraer la entrada válida de `G`: la ruta final es `S → B → G`, de costo `6`.
+Los casos de ruta válida, inicio igual al destino, destino inalcanzable y posiciones inválidas están cubiertos por pruebas o evidencia identificable.
 
-No se debe terminar al descubrir por primera vez G: una ruta alternativa todavía puede mejorar el costo. Ambas rutas tienen dos acciones, pero costos diferentes.
+### BASE-AC4 — Explicación conceptual
 
-Estas trazas son ejercicios conceptuales. No deben presentarse como ejecuciones del código del proyecto.
+DFS y Dijkstra están explicados correctamente y diferenciados de la implementación verificada.
 
-## 10. Requisitos comunes de la práctica
+### BASE-AC5 — Validación técnica
 
-- **BASE-01 — Exploración y línea base:** identificar búsqueda, seguimiento, consumidor y pruebas; registrar repositorio, commit inicial, cambios previos, comandos y validación de referencia.
-- **BASE-02 — Comparación:** contrastar BFS y A* sobre el mismo fixture, registrando rutas y métricas reales disponibles.
-- **BASE-03 — Algoritmos:** documentar las trazas conceptuales de DFS y Dijkstra sin implementarlos.
-- **BASE-04 — Casos límite:** verificar ruta válida, inicio igual a meta, destino inaccesible y extremos inválidos.
-- **BASE-05 — Decisión humana:** adaptar esta especificación al repositorio, seleccionar un solo anexo y aprobar spec y plan antes de implementar.
-- **BASE-06 — Implementación:** desarrollar únicamente la variante B aprobada, reutilizar capacidades existentes y revisar cada incremento.
-- **BASE-07 — Verificación:** ejecutar pruebas enfocadas, prueba del consumidor, validación completa y revisión del diff.
-- **BASE-08 — Entrega:** preparar los tres documentos, la URL y el commit final identificable.
+Se registran los resultados de los comandos de validación ejecutados sobre la versión evaluada.
 
-### Criterios comunes de aceptación
+### BASE-AC6 — Revisión humana y limitaciones
 
-- **BASE-AC1 — Evidencia inicial:** repositorio, commit, capas, cambios previos, comandos y resultados iniciales identificados, distinguiendo observaciones de supuestos.
-- **BASE-AC2 — Comparación y trazas:** BFS y A* obtienen rutas válidas de cuatro pasos y costo unitario `4` en el fixture común; se documentan las métricas disponibles y las conclusiones de DFS y Dijkstra.
-- **BASE-AC3 — Casos límite:** inicio igual a meta representa éxito de costo cero; la barrera completa representa ausencia de ruta; los extremos inválidos se distinguen según el contrato documentado.
-- **BASE-AC4 — Aprobación y decisión:** spec y plan revisados antes de los cambios adicionales; una decisión humana y su contraste con el código quedan registrados; solo se desarrolla la variante B.
-- **BASE-AC5 — Verificación final:** los criterios de B tienen pruebas reproducibles, existe evidencia del consumidor, la validación y el diff se revisan y no se introducen regresiones nuevas.
-- **BASE-AC6 — Entrega identificable:** los tres documentos, la URL y el commit final identifican la misma versión entregada; los cambios de código y pruebas requeridos están en ese commit.
+Se documentan las limitaciones conocidas y se identifica la decisión humana pendiente o realizada. No se presenta la entrega como aprobada si esa decisión no está registrada.
 
-## 11. Verificación y entrega
+## 12. Validación técnica
 
-El comando principal previsto es:
+Se ejecutó `npm.cmd run validate`. La salida registró:
 
-```bat
-npm run validate
-```
+- `tsc --noEmit`: correcto.
+- Vitest: 8 archivos de prueba aprobados y 58 pruebas aprobadas.
+- Vite: build de producción completado.
+- Advertencia no bloqueante: el paquete JavaScript minificado fue de `1,498.02 kB` (gzip `345.56 kB`), por encima del umbral de `500 kB`.
 
-Antes de ejecutarlo, confirmar su definición en `package.json`. Registrar la salida real de tipos, pruebas y compilación. Ejecutar la validación después de los últimos cambios de código, pruebas y documentación que formen parte de la entrega.
+La prueba de comparación en el fixture común registró para BFS 4 pasos, costo 4, 12 nodos expandidos y frontera máxima 4; para A*, 4 pasos, costo 4, 5 nodos expandidos y frontera máxima 9. Las métricas dependen del escenario evaluado.
+## 13. Limitaciones conocidas
 
-La evidencia se registra en `docs/practica-navegacion/evidencia.md` e incluye:
+- La variante B está disponible a través de la función de simulación `calculateRoute` con el parámetro correspondiente.
+- `GameScene.ts` llama a `calculateRoute` sin activar ese parámetro; por tanto, no debe afirmarse que la variante B esté activa durante el juego.
+- Los resultados de la comparación corresponden al mapa de referencia y no permiten generalizar el rendimiento a todos los escenarios.
+- Las métricas de nodos expandidos y frontera máxima dependen del escenario y de la implementación.
+- La advertencia de tamaño de Vite debe quedar documentada aunque la compilación termine correctamente.
 
-- Estado inicial y commit de referencia.
-- Exploración mínima y rutas comprobadas.
-- Comparación BFS/A* y métricas disponibles.
-- Trazas conceptuales de DFS y Dijkstra.
-- Casos normales y límites.
-- Pruebas de la variante B y de su consumidor.
-- Decisiones humanas y registro resumido de intervención.
-- Validación final, revisión del diff y limitaciones.
+## 14. Revisión y aceptación
 
-La entrega final requiere:
+La validación automatizada de la versión revisada finalizó correctamente. Antes de declarar aceptada la entrega, corresponde:
 
-- URL del repositorio individual.
-- Hash del commit final.
-- `spec.md`, `plan.md` y `evidencia.md` completos y coherentes.
-- Código y pruebas requeridos incorporados al commit que se entrega.
+1. revisar el diff completo de los cambios documentales;
+2. comprobar la coherencia entre requisitos, pruebas y evidencias;
+3. confirmar las limitaciones de integración de la variante B;
+4. registrar la decisión humana final.
 
-La persona responsable revisará los cambios y decidirá si crea el commit y publica la versión final. No se declarará aprobada una comprobación que no tenga evidencia verificable.
-
-## 12. Estado actual de aceptación
-
-Estos estados reflejan el conocimiento disponible al redactar la especificación. Deben actualizarse después de la verificación final.
-
-- **BASE-01:** rutas candidatas identificadas; falta completar y confirmar los datos iniciales de la versión final.
-- **BASE-02:** existe una prueba de comparación con resultados previamente observados; falta confirmar su conservación y registrar la evidencia definitiva.
-- **BASE-03:** trazas conceptuales documentadas; comprobar que estén también registradas en la evidencia final.
-- **BASE-04:** hay pruebas de casos límite según el historial del proyecto; comprobar cada caso en la validación final.
-- **BASE-05:** la variante B está seleccionada; registrar la aprobación humana de spec y plan antes de cualquier modificación adicional.
-- **BASE-06:** revisar qué capacidades ya están implementadas y qué cambios son realmente necesarios.
-- **BASE-07:** la validación anterior registró 57 pruebas aprobadas y compilación exitosa; repetirla después de los cambios finales.
-- **BASE-08:** el último commit publicado identificado es `b34e385`; confirmar el commit final que incluya toda la entrega.
-- **B-AC1:** hay resultados de comparación BFS/A* en el fixture unitario, pero falta demostrar el rodeo ponderado con costo `6` y la ruta directa de costo `16`.
-- **B-AC2:** verificar la desactivación del perfil y su comportamiento unitario.
-- **B-AC3:** falta confirmar mediante evidencia una prueba del consumidor real con el perfil activado y desactivado.
-
-No se consideran satisfechos los criterios únicamente porque estén escritos en esta especificación. La aprobación final depende de la ejecución, la revisión humana y la evidencia correspondiente.
-
-## 13. Limitaciones
-
-La variante B utiliza una máscara fija y costos estáticos. No modela visión dinámica, probabilidades, coberturas reales ni conocimiento del guardia.
-
-Las métricas de exploración dependen de la implementación y del fixture. Solo se registrarán si se obtienen de resultados verificables.
-
-Si el código existente presenta una incompatibilidad con esta especificación, debe documentarse y consultarse antes de ampliar el alcance. No se debe ocultar una limitación ni modificar los criterios para simular un cumplimiento que no fue demostrado.
+**Estado:** validación automatizada completada; revisión final del diff y decisión humana pendientes. No se declara una aprobación humana que todavía no fue expresada.

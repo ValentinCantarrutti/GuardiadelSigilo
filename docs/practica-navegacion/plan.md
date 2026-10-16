@@ -1,179 +1,333 @@
-# Plan de implementación — Práctica de navegación
-
-# Plan — práctica de navegación
-
-**Estado:** Borrador para revisión humana
+**Estado:** Pendiente de revisión y aceptación humana
 **Variante:** B — evitar zonas expuestas
 **Spec:** `docs/practica-navegacion/spec.md`
+**Evidencia:** `docs/practica-navegacion/evidencia.md`
 **Repositorio:** `https://github.com/ValentinCantarrutti/GuardiadelSigilo`
+**Último commit publicado de referencia:** `b34e385` — `Completa evidencia y casos limite de navegacion`
+**Commit actual observado durante la revisión:** `89ce872`
+# Plan de implementación — Práctica de navegación
 
 ## 1. Objetivo
 
-Completar y verificar la variante B de la práctica de navegación, comparando BFS y A*, comprobando los casos comunes y conectando la preferencia por evitar zonas expuestas con un consumidor existente.
+Organizar la inspección, verificación y documentación de la práctica de navegación del laboratorio Guardia de Sigilo.
 
-La prioridad es conservar el comportamiento anterior, reutilizar las capacidades existentes y documentar únicamente resultados comprobados. No se implementarán otras variantes ni se reconstruirán sistemas que ya funcionen.
+El trabajo debe ser incremental y trazable: primero se comprende el estado existente, después se verifican los requisitos, se ejecutan las pruebas pertinentes y finalmente se registra la evidencia y la decisión humana.
+
+No se deben inventar archivos, resultados, pruebas ni comportamientos. Tampoco se deben realizar cambios ajenos al alcance sin una justificación documentada.
 
 ## 2. Estado inicial y precauciones
 
-Antes de continuar, comprobar desde la raíz del repositorio:
+### 2.1. Línea base
 
-```bat
-git branch --show-current
-git rev-parse HEAD
-git status --short
-git diff --check
-git diff --stat
-```
+La práctica dispone de una implementación de búsqueda con BFS y A*, pruebas automatizadas y una función de simulación que permite evaluar una variante de costos.
 
-El último commit publicado identificado durante el trabajo es `b34e385` (`Completa evidencia y casos limite de navegacion`). Confirmar el commit actual antes de utilizarlo como referencia definitiva.
+Se debe revisar el estado real del repositorio antes de intervenir y diferenciar los resultados heredados de los obtenidos después de cada cambio.
 
-Se registró previamente una validación con 57 pruebas aprobadas y compilación exitosa. Ese resultado corresponde al estado validado entonces y debe repetirse al cerrar la práctica.
+### 2.2. Validación técnica registrada
 
-Existe una prueba de comparación BFS/A* en `tests/navigation/comparison.evidence.test.ts`. Su ejecución registró cuatro movimientos para ambos algoritmos en el fixture abierto de 5 × 3. Antes de continuar, comprobar su estado en Git y decidir si corresponde conservarla como parte de la entrega.
+La ejecución final de `npm.cmd run validate` completó correctamente:
 
-También se observaron los archivos sin seguimiento `output.txt` y `perfil_b_zonas_expuestas.patch`. Revisarlos antes de decidir su destino. No borrarlos, incorporarlos ni publicarlos automáticamente.
+- TypeScript: `tsc --noEmit` sin errores.
+- Vitest: 8 archivos y 58 pruebas aprobadas.
+- Vite: build de producción completado.
+- Advertencia no bloqueante: paquete JavaScript minificado de `1,498.02 kB`, gzip de `345.56 kB`, por encima del umbral de `500 kB`.
 
-**Regla de autorización:** antes de modificar código, verificar qué requisitos ya están implementados. Si una capacidad existe y satisface la especificación, conservarla y completar su evidencia en lugar de duplicarla.
+La salida corresponde a la ejecución realizada después de los cambios documentales pendientes.
+### 2.3. Precauciones
 
-## 3. Referencia común: BASE-01 a BASE-04
+- No instalar dependencias nuevas sin necesidad y autorización.
+- No publicar secretos ni datos personales.
+- No modificar áreas fuera del alcance.
+- No declarar pruebas aprobadas sin haberlas ejecutado.
+- No confundir una prueba unitaria con la verificación de una mecánica dentro del juego.
+- No realizar un commit o push adicional hasta completar la revisión y contar con autorización expresa.
 
-Estos requisitos son parte de la práctica, independientemente de la variante B.
+## 3. Requisitos comunes: BASE-01 a BASE-08
+
+Esta sección sigue la misma numeración que `spec.md` y `evidencia.md`.
 
 ### BASE-01 — Exploración y línea base
 
-- Identificar las capas de búsqueda, seguimiento, consumidor y pruebas mediante rutas y símbolos reales.
-- Registrar el repositorio, la rama, el commit inicial y los cambios previos.
-- Confirmar los comandos de prueba y validación en `package.json` y en las instrucciones del proyecto.
-- Distinguir hechos comprobados, supuestos y limitaciones.
+**Acciones**
 
-**Evidencia:** tabla de capas y rutas, estado inicial de Git y resultado de la validación de referencia disponible.
+1. Revisar la implementación de búsqueda y sus dependencias.
+2. Localizar la función de simulación y el punto de integración con la escena.
+3. Revisar las pruebas existentes antes de modificarlas.
+4. Registrar qué comportamiento ya existía y qué cambios se introdujeron para la práctica.
+
+**Resultado esperado**
+
+Una descripción verificable de los archivos relevantes, la responsabilidad de cada uno y el estado inicial.
+
+**Criterio de cierre**
+
+Los archivos citados en la documentación existen y su función se corresponde con la descripción.
 
 ### BASE-02 — Comparación BFS/A*
 
-Utilizar el fixture común de 5 × 3 definido en la especificación:
+**Acciones**
 
-- Inicio: `(0,1)`.
-- Meta: `(4,1)`.
-- Todas las celdas libres, costo unitario y movimientos cardinales.
-- Registrar estado, ruta, cantidad de movimientos, costo, nodos expandidos y frontera máxima cuando esas métricas estén disponibles.
+1. Utilizar el escenario común de `5 × 3`.
+2. Establecer inicio `(0,1)` y destino `(4,1)`.
+3. Ejecutar BFS y A* con la variante B desactivada.
+4. Registrar ruta, pasos, costo y métricas disponibles.
+5. Comparar los resultados sin generalizar más allá del escenario probado.
 
-La ruta directa contiene cinco puntos y cuatro movimientos. El costo unitario esperado es 4.
+**Resultado esperado**
 
-En una ejecución previamente registrada, BFS y A* encontraron esa ruta. BFS expandió 12 nodos y A* expandió 5; la frontera máxima registrada fue 4 para BFS y 9 para A*. Estos datos corresponden exclusivamente a ese fixture y deben contrastarse con la prueba conservada y su salida real.
+Una comparación reproducible que muestre que ambos algoritmos encuentran el recorrido de referencia.
 
-Si una métrica no está disponible, documentar la limitación. No agregar instrumentación innecesaria ni inventar valores.
+**Criterio de cierre**
 
-### BASE-03 — DFS y Dijkstra conceptuales
+Los resultados están respaldados por una prueba identificable y no solo por una descripción narrativa.
 
-Completar y documentar las trazas provistas por la guía, sin implementar algoritmos nuevos.
+### BASE-03 — Algoritmos conceptuales
 
-- DFS: explicar por qué la primera ruta encontrada puede no ser la de menos movimientos.
-- Dijkstra: completar los costos `G=10` y luego `G=6`; documentar la ruta `S → B → G`, de costo total 6, y explicar por qué encontrar inicialmente una ruta hacia G no permite finalizar antes de comparar los costos.
+**Acciones**
+
+1. Documentar DFS.
+2. Documentar Dijkstra.
+3. Explicar sus diferencias con BFS y A*.
+4. Separar las explicaciones conceptuales de las funcionalidades realmente implementadas.
+
+**Resultado esperado**
+
+Una explicación correcta de las estrategias de exploración y de sus garantías, sin afirmar que DFS o Dijkstra forman parte del flujo ejecutable si no existe evidencia.
+
+**Criterio de cierre**
+
+La documentación distingue entre teoría, implementación y pruebas.
 
 ### BASE-04 — Casos comunes y límites
 
-Verificar con el contrato real del repositorio:
+**Acciones**
 
-1. Ruta válida entre dos puntos.
-2. Inicio igual a meta: éxito inequívoco y costo de movimientos 0.
-3. Destino libre pero inaccesible por una barrera que bloquee la columna central.
-4. Inicio inválido `(-1,1)`.
-5. Meta inválida `(5,1)`.
+1. Comprobar una ruta válida.
+2. Comprobar inicio igual al destino.
+3. Comprobar un destino inalcanzable.
+4. Comprobar un inicio inválido.
+5. Comprobar un destino inválido.
+6. Revisar que los resultados de error no se interpreten como rutas válidas.
 
-No confundir un destino inaccesible con coordenadas inválidas. No imponer un nuevo formato de resultado si el contrato existente representa estos casos de otra manera, siempre que la diferencia sea inequívoca.
+**Resultado esperado**
 
-## 4. Incremento 1 — Verificar el contrato y la variante B
+Cobertura documentada de los principales casos límite.
 
-**Archivos previstos, sujetos a la exploración:**
+**Criterio de cierre**
 
-- `src/domain/navigation/search.ts`
-- `tests/navigation/search.test.ts`
-- `tests/navigation/comparison.evidence.test.ts`, si se conserva.
+Cada escenario se relaciona con una prueba o evidencia identificable.
 
-**Trabajo:**
+### BASE-05 — Decisión humana
 
-1. Revisar el contrato actual de BFS y A*, el cálculo del costo y la heurística.
-2. Comprobar cómo se representa la máscara de celdas expuestas y si ya existe una configuración equivalente.
-3. Verificar que entrar en una celda normal cueste 1 y entrar en una celda expuesta cueste 5.
-4. Verificar que la celda inicial no sume costo.
-5. Comprobar que Manhattan sea admisible porque el costo mínimo de entrada es 1.
-6. Verificar el caso normal, el rodeo preferido, la desactivación del perfil y el inicio igual a meta.
-7. Mantener BFS con su comportamiento unitario anterior.
+**Acciones**
 
-**Criterios:**
+1. Revisar los cambios.
+2. Examinar las salidas de validación.
+3. Leer las limitaciones conocidas.
+4. Determinar si la entrega satisface los criterios.
+5. Registrar la decisión y las observaciones pendientes.
 
-- `B-AC1`: con el perfil B, A* encuentra un camino válido de seis movimientos, costo ponderado 6, que evita las tres celdas expuestas. La ruta directa tiene cuatro movimientos y costo ponderado 16.
-- `B-AC2`: con la penalización desactivada, la ruta directa tiene cuatro movimientos y costo 4; la máscara no bloquea celdas.
-- `B-AC4`: inicio igual a meta tiene costo de movimientos 0 y costo ponderado 0, si el resultado expone este último campo.
-- BFS conserva su semántica y las pruebas anteriores continúan pasando.
+**Resultado esperado**
 
-Los costos ponderados suman los costos de entrada de las celdas posteriores al inicio. `totalCost`, cuando representa cantidad de movimientos, equivale a `path.length - 1`; no confundir ambos campos.
+Una decisión humana explícita, separada de los resultados automáticos.
 
-**Verificación:** utilizar las pruebas enfocadas confirmadas en `package.json`. Si no existe un comando específico, utilizar el comando de pruebas documentado y registrar el resultado real.
+**Criterio de cierre**
 
-**Condición para avanzar:** criterios comprobados, diff revisado y ausencia de regresiones nuevas. Si la capacidad ya existe, no modificar la implementación sin una necesidad demostrada.
+La documentación no afirma aprobación hasta que la revisión esté efectivamente registrada.
 
-## 5. Incremento 2 — Integración con el consumidor existente
+### BASE-06 — Trazabilidad
 
-**Archivos candidatos, sujetos a la exploración:**
+**Acciones**
 
-- `src/application/simulation/navigationDemo.ts`
-- El consumidor real identificado en el repositorio.
-- La prueba de integración existente o una prueba acotada en la carpeta de pruebas correspondiente.
+1. Relacionar cada requisito con sus criterios de aceptacion.
+2. Identificar los archivos, pruebas y evidencias que respaldan cada criterio.
+3. Registrar explicitamente los criterios que siguen pendientes.
 
-**Trabajo:**
+**Resultado esperado**
 
-1. Identificar cómo el consumidor solicita actualmente una ruta.
-2. Verificar si puede seleccionar explícitamente el perfil B mediante una configuración existente o una adaptación mínima.
-3. Confirmar que el perfil B produce el rodeo esperado desde el consumidor, no solo desde la función de búsqueda aislada.
-4. Confirmar que el modo unitario o perfil desactivado conserva el comportamiento previo.
-5. Revisar que no se alteren la percepción, la memoria, la FSM ni los controles.
-6. No agregar interfaces, indicadores, dependencias ni refactorizaciones ajenas a la variante.
+Una relacion verificable entre requisitos, implementacion y evidencia.
 
-**Criterios:**
+**Criterio de cierre**
 
-- `B-AC3`: una prueba reproducible invoca el consumidor real y demuestra el resultado con el perfil B y sin él.
-- `BASE-AC5`: la integración respeta el contrato anterior y no introduce regresiones.
-- La evidencia identifica la ruta y el símbolo del consumidor efectivamente probado.
+Los documentos permiten localizar el respaldo de cada criterio sin confundir una descripcion con una prueba ejecutada.
 
-**Verificación:** ejecutar las pruebas de integración pertinentes y registrar el comando y su salida. Si la integración ya existe y cumple el contrato, conservarla y demostrarla mediante evidencia.
+### BASE-07 — Validacion reproducible
 
-**Condición para avanzar:** el consumidor utiliza la configuración de navegación de forma comprobable. Si requiere cambios fuera del alcance, detenerse y consultar.
+**Acciones**
 
-## 6. Incremento 3 — Validación final, revisión y evidencia
+1. Registrar el comando de validacion ejecutado.
+2. Conservar los resultados observados y las advertencias relevantes.
+3. Repetir la validacion cuando los cambios posteriores puedan afectar sus resultados.
 
-**Archivos previstos:**
+**Resultado esperado**
 
-- `docs/practica-navegacion/spec.md`
-- `docs/practica-navegacion/plan.md`
-- `docs/practica-navegacion/evidencia.md`
-- Las pruebas y los archivos de implementación autorizados en los incrementos anteriores.
+Un registro fiel de las pruebas y de la compilacion realizadas sobre la version evaluada.
 
-**Trabajo:**
+**Criterio de cierre**
 
-1. Completar la matriz de criterios comunes y de la variante B.
-2. Registrar las trazas conceptuales de DFS y Dijkstra.
-3. Ejecutar las pruebas enfocadas y la validación completa después de los cambios finales.
-4. Revisar `git diff --check`, `git diff --stat`, `git status --short` y el diff de cada archivo modificado.
-5. Comprobar que la documentación distingue los resultados históricos de los resultados de la última ejecución.
-6. Identificar limitaciones o criterios no demostrados, sin declararlos aprobados.
-7. Verificar que los tres documentos, las pruebas y la implementación requerida estén en el commit que se entregará.
-8. Dejar el commit y la publicación final a decisión humana.
+Los resultados documentados corresponden a una ejecucion identificable y no se presentan como garantia de una version posterior sin volver a validarla.
 
-**Comandos de revisión:**
+### BASE-08 — Integridad del alcance
 
-```bat
-git diff --check
-git diff --stat
-git status --short
-npm run validate
-```
+**Acciones**
 
-Ejecutar los comandos desde la raíz del repositorio y registrar sus resultados reales. Si la validación falla, conservar el error y determinar si es previo o causado por los cambios de la práctica.
+1. Distinguir las pruebas unitarias de la integracion dentro del juego.
+2. Documentar las limitaciones conocidas de la variante B.
+3. Evitar declarar funcionalidades integradas o aprobadas sin evidencia suficiente.
 
-**Criterios:**
+**Resultado esperado**
 
-- `BASE-AC1` a `BASE-AC4`: exploración, comparación, casos comunes y decisión documentados con evidencia.
-- `B-AC1` a `B-AC3`: mejora de la variante B, perfil desactivado e integración demostrados.
-- `BASE-AC5`: validación final y diff revisados.
-- `BASE-AC6`: entrega identificable mediante URL, commit final y
+Una descripcion honesta del alcance implementado y de lo que todavia no se ha verificado.
+
+**Criterio de cierre**
+
+La documentacion deja claro que `GameScene.ts` no activa la variante B en la llamada actual y mantiene pendiente la decision humana final.
+## 4. Incremento 1 — Variante B
+
+### Objetivo
+
+Verificar el comportamiento de los costos de entrada configurables.
+
+### Configuración
+
+- costo normal: `1`;
+- costo de las celdas expuestas `(1,1)`, `(2,1)` y `(3,1)`: `5`;
+- costo de la celda inicial: `0`, porque no se cobra por ingresar a ella;
+- variante B: activable o desactivable.
+
+### Acciones
+
+1. Revisar cómo se calculan los costos de entrada.
+2. Confirmar que la celda inicial no se cobre.
+3. Ejecutar el escenario con la variante desactivada.
+4. Ejecutar el escenario con la variante activada.
+5. Comparar el recorrido directo con la alternativa de menor costo.
+6. Registrar los resultados y relacionarlos con las pruebas.
+
+### Resultados esperados
+
+Con la variante desactivada, el recorrido directo tiene cuatro pasos y costo `4`.
+
+Con la variante activada, el recorrido directo tiene cuatro pasos y costo `16`, mientras que la alternativa de seis pasos tiene costo `6`.
+
+### Criterios de aceptación
+
+- **B-AC1:** el cálculo del costo respeta los costos de entrada y no cobra la celda inicial.
+- **B-AC2:** la variante desactivada conserva los costos normales.
+- **B-AC3:** en el escenario de referencia, la variante activada permite elegir la ruta de menor costo total, aunque sea más larga.
+
+El caso de inicio igual al destino pertenece a `BASE-AC3`, no a un criterio adicional de la variante B.
+
+## 5. Incremento 2 — Integración y alcance de la variante
+
+### Objetivo
+
+Distinguir la disponibilidad de la variante en la función de simulación de su activación dentro del juego.
+
+### Acciones
+
+1. Revisar la firma de `calculateRoute` en `src/application/simulation/navigationDemo.ts`.
+2. Confirmar el comportamiento del parámetro `profileB`.
+3. Revisar la llamada a `calculateRoute` desde `src/game/scenes/GameScene.ts`.
+4. Documentar el estado de integración sin ampliar el alcance automáticamente.
+
+### Limitación conocida
+
+La función de simulación permite activar la variante mediante su parámetro `profileB`. La escena `GameScene.ts` llama a `calculateRoute` sin activar ese parámetro.
+
+Por lo tanto, no debe afirmarse que la variante B esté activa en el juego. Su verificación mediante la función de simulación y las pruebas no equivale a una demostración de que esté habilitada en la escena jugable.
+
+### Criterio de cierre
+
+La documentación describe con precisión qué se verificó y qué queda fuera de la integración actual.
+
+## 6. Incremento 3 — Validación y criterios comunes
+
+### Objetivo
+
+Ejecutar las comprobaciones técnicas y registrar la evidencia de la versión final.
+
+### Acciones
+
+1. Ejecutar `npm.cmd run validate`.
+2. Registrar la salida real de TypeScript, Vitest y Vite.
+3. Verificar el resultado de las pruebas de navegación.
+4. Confirmar que la prueba de comparación de BFS/A* sigue correspondiéndose con el escenario descrito.
+5. Ejecutar `git diff --check`.
+6. Revisar que los documentos no tengan referencias rotas ni afirmaciones sin respaldo.
+7. Registrar advertencias y limitaciones.
+
+### Criterios de aceptación
+
+- **BASE-AC1:** exploración documentada.
+- **BASE-AC2:** comparación reproducible.
+- **BASE-AC3:** casos límite cubiertos por pruebas o evidencia identificable.
+- **BASE-AC4:** explicación conceptual correcta.
+- **BASE-AC5:** validación técnica registrada sobre la versión evaluada.
+- **BASE-AC6:** limitaciones y decisión humana documentadas.
+
+### Validación final
+
+Se ejecutó `npm.cmd run validate` y finalizaron correctamente typecheck, pruebas y build: 8 archivos de prueba, 58 pruebas aprobadas y compilación de producción completada. Vite informó una advertencia no bloqueante por el tamaño del paquete JavaScript (`1,498.02 kB`, gzip `345.56 kB`).
+
+La comparación del fixture común registró:
+
+- BFS: 4 pasos, costo 4, 12 nodos expandidos y frontera máxima 4.
+- A*: 4 pasos, costo 4, 5 nodos expandidos y frontera máxima 9.
+
+Estos valores describen el fixture probado, no un resultado universal para cualquier mapa. La revisión del diff y la decisión humana siguen siendo pasos separados.
+## 7. Trazabilidad
+
+La matriz de trazabilidad se encuentra en `docs/practica-navegacion/evidencia.md`.
+
+Debe permitir identificar, para cada requisito y criterio:
+
+- qué se esperaba;
+- dónde se implementa o documenta;
+- qué prueba o evidencia lo respalda;
+- cuál fue el resultado observado;
+- qué limitación permanece.
+
+Una referencia a un archivo no demuestra por sí sola que un requisito esté satisfecho. La evidencia debe respaldar la afirmación concreta.
+
+## 8. Registro de trabajo
+
+El registro debe conservar una cronología breve y verificable.
+
+Para cada intervención, registrar:
+
+1. qué se inspeccionó o modificó;
+2. por qué era necesario;
+3. qué prueba o comando se ejecutó;
+4. qué resultado produjo;
+5. qué limitaciones quedaron pendientes.
+
+Distinguir entre cambios de implementación, cambios de pruebas y cambios de documentación.
+
+No atribuir a una ejecución anterior resultados que no fueron observados en ella.
+
+## 9. Revisión final
+
+Antes de considerar cerrada la práctica:
+
+- revisar la consistencia entre `spec.md`, `plan.md` y `evidencia.md`;
+- verificar que los identificadores BASE y B coincidan entre los documentos;
+- comprobar que cada afirmación de validación tenga un resultado real;
+- confirmar las limitaciones de integración de la variante B;
+- revisar el diff completo;
+- obtener la decisión humana expresa.
+
+Si alguna validación no puede ejecutarse, debe registrarse como pendiente, no como aprobada.
+
+## 10. Entrega
+
+La entrega debe incluir:
+
+- `docs/practica-navegacion/spec.md`;
+- `docs/practica-navegacion/plan.md`;
+- `docs/practica-navegacion/evidencia.md`;
+- las pruebas y cambios de implementación pertinentes;
+- los resultados reproducibles de validación;
+- la revisión final y las limitaciones conocidas.
+
+No realizar un commit o push adicional hasta que la revisión final esté completa y exista autorización expresa. La existencia de commits anteriores debe registrarse por separado del estado de aceptación de esta revisión.
