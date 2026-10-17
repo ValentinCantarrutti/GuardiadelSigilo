@@ -1,10 +1,10 @@
-**Estado:** Pendiente de revisión y aceptación humana
-**Variante:** B — evitar zonas expuestas
+**Estado:** validación automatizada completada; revisión humana registrada para entrega académica. Se mantienen documentadas las limitaciones conocidas de integración de la variante B.
 **Spec:** `docs/practica-navegacion/spec.md`
 **Evidencia:** `docs/practica-navegacion/evidencia.md`
 **Repositorio:** `https://github.com/ValentinCantarrutti/GuardiadelSigilo`
 **Último commit publicado de referencia:** `b34e385` — `Completa evidencia y casos limite de navegacion`
 **Commit actual observado durante la revisión:** `89ce872`
+
 # Plan de implementación — Práctica de navegación
 
 ## 1. Objetivo
@@ -33,6 +33,7 @@ La ejecución final de `npm.cmd run validate` completó correctamente:
 - Advertencia no bloqueante: paquete JavaScript minificado de `1,498.02 kB`, gzip de `345.56 kB`, por encima del umbral de `500 kB`.
 
 La salida corresponde a la ejecución realizada después de los cambios documentales pendientes.
+
 ### 2.3. Precauciones
 
 - No instalar dependencias nuevas sin necesidad y autorización.
@@ -182,6 +183,7 @@ Una descripcion honesta del alcance implementado y de lo que todavia no se ha ve
 **Criterio de cierre**
 
 La documentacion deja claro que `GameScene.ts` no activa la variante B en la llamada actual y mantiene pendiente la decision humana final.
+
 ## 4. Incremento 1 — Variante B
 
 ### Objetivo
@@ -276,6 +278,7 @@ La comparación del fixture común registró:
 - A*: 4 pasos, costo 4, 5 nodos expandidos y frontera máxima 9.
 
 Estos valores describen el fixture probado, no un resultado universal para cualquier mapa. La revisión del diff y la decisión humana siguen siendo pasos separados.
+
 ## 7. Trazabilidad
 
 La matriz de trazabilidad se encuentra en `docs/practica-navegacion/evidencia.md`.

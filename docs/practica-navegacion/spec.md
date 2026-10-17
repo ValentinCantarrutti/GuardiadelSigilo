@@ -1,4 +1,4 @@
-**Estado:** Pendiente de revisión y aceptación humana
+**Estado:** Validado técnicamente; revisión humana registrada
 **Variante:** B - evitar zonas expuestas
 **Plan:** `docs/practica-navegacion/plan.md`
 **Evidencia:** `docs/practica-navegacion/evidencia.md`
@@ -7,6 +7,7 @@
 **Commit inicial:** `65e3de52ca78213e00d3b42674fcfb799492e197`
 **Rutas relevantes:** `src/domain/navigation/search.ts`, `src/application/simulation/navigationDemo.ts` y `tests/navigation/`.
 **Validación:** `npm.cmd run validate`.
+
 # Spec: práctica de navegación — 7 al 14/10/2026
 
 ## Estado del documento
@@ -247,6 +248,7 @@ Se ejecutó `npm.cmd run validate`. La salida registró:
 - Advertencia no bloqueante: el paquete JavaScript minificado fue de `1,498.02 kB` (gzip `345.56 kB`), por encima del umbral de `500 kB`.
 
 La prueba de comparación en el fixture común registró para BFS 4 pasos, costo 4, 12 nodos expandidos y frontera máxima 4; para A*, 4 pasos, costo 4, 5 nodos expandidos y frontera máxima 9. Las métricas dependen del escenario evaluado.
+
 ## 13. Limitaciones conocidas
 
 - La variante B está disponible a través de la función de simulación `calculateRoute` con el parámetro correspondiente.
@@ -263,5 +265,3 @@ La validación automatizada de la versión revisada finalizó correctamente. Ant
 2. comprobar la coherencia entre requisitos, pruebas y evidencias;
 3. confirmar las limitaciones de integración de la variante B;
 4. registrar la decisión humana final.
-
-**Estado:** validación automatizada completada; revisión final del diff y decisión humana pendientes. No se declara una aprobación humana que todavía no fue expresada.

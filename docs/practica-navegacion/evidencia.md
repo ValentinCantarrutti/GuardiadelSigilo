@@ -1,9 +1,10 @@
-**Estado:** Validación técnica ejecutada; revisión y aceptación humana pendientes
+**Estado:** Validación técnica ejecutada; revisión humana registrada
 **Variante:** B - evitar zonas expuestas
 **Spec:** `docs/practica-navegacion/spec.md`
 **Plan:** `docs/practica-navegacion/plan.md`
 **Repositorio:** `https://github.com/ValentinCantarrutti/GuardiadelSigilo`
 **Último commit publicado de referencia:** `b34e385` - `Completa evidencia y casos limite de navegacion`
+
 # Evidencia: práctica de navegación — 7 al 14/10/2026
 
 ## 1. Objetivo
@@ -65,7 +66,7 @@ La comparación está asociada a:
 - la implementación de búsqueda en `src/domain/navigation/search.ts`;
 - la función de simulación en `src/application/simulation/navigationDemo.ts`.
 
-La prueba se ejecutó mediante `npm.cmd run validate`. Los resultados registrados corresponden a esa ejecución; la revisión final del diff y la decisión humana siguen pendientes.
+La prueba se ejecutó mediante `npm.cmd run validate`. Los resultados registrados corresponden a esa ejecución y fueron revisados para esta entrega.
 
 ## 4. Evidencia de la variante B
 
@@ -123,10 +124,44 @@ La suite se ejecutó mediante `npm.cmd run validate`: 8 archivos y 58 pruebas ap
 
 La documentación conceptual debe diferenciar estos algoritmos de la implementación principal verificada.
 
-- **DFS:** explora una rama hasta donde puede y retrocede cuando es necesario. No garantiza la ruta de menor costo.
-- **Dijkstra:** busca caminos de menor costo acumulado con costos no negativos.
-- **BFS:** encuentra rutas con el menor número de movimientos cuando todos los movimientos tienen el mismo costo.
-- **A*:** combina el costo acumulado con una heurística para orientar la exploración.
+### DFS
+Grafo de referencia utilizado por la guía:
+
+`S:[A,B] A:[C] C:[X] X:[G] B:[D,E] D:[G] E:[] G:[]`
+
+DFS utiliza una pila y explora una rama completa antes de retroceder.
+
+- Traza observada: `S → A → C → X → G`
+- Ruta obtenida: `S-A-C-X-G`
+- Cantidad de pasos: `4`
+- Comparación con BFS: BFS encuentra la ruta `S-B-D-G` en 3 pasos.
+
+**Conclusión:**
+Encontrar primero una meta no demuestra que DFS encuentre la ruta más corta. DFS prioriza la profundidad de exploración y puede devolver una ruta válida más larga que la obtenida por BFS.
+
+### Dijkstra
+Escenario conceptual de la guía:
+
+- `S→A` cuesta 1
+- `A→G` cuesta 9
+- `S→B` cuesta 3
+- `B→G` cuesta 3
+
+**Ejecución:**
+- Extraer `S=0`: descubrir `A=1` y `B=3`.
+- Extraer `A=1`: descubrir `G=10`.
+- Extraer `B=3`: mejorar `G=6`.
+- Extraer entrada válida de `G`: ruta `S-B-G`.
+- Costo final: `6`.
+
+**Conclusión:**
+Descubrir la meta por primera vez no implica haber encontrado el costo mínimo. Dijkstra continúa explorando hasta extraer la mejor entrada válida de la frontera. En este ejemplo la primera ruta encontrada hacia `G` tiene costo 10, pero posteriormente se mejora a 6.
+
+**Relación con los algoritmos del proyecto:**
+- BFS minimiza cantidad de pasos cuando todos los movimientos tienen el mismo costo.
+- Dijkstra minimiza costo acumulado con costos no negativos.
+- A* combina costo acumulado y heurística para orientar la búsqueda.
+- DFS explora por profundidad y no garantiza optimalidad.
 
 Estas explicaciones son evidencia documental. No constituyen por sí mismas evidencia de que DFS o Dijkstra estén implementados o ejecutándose en el juego.
 
@@ -141,8 +176,8 @@ En la ejecución más reciente de `npm.cmd run validate`, la salida observada fu
 | TypeScript (`tsc --noEmit`) | Correcto |
 | Vitest | 8 archivos aprobados; 58 pruebas aprobadas |
 | Vite build | Compilación de producción completada |
-| JavaScript generado | `1,498.02 kB`; gzip `345.56 kB` |
-| Advertencia de Vite | Paquete minificado superior a `500 kB`; no bloqueó el build |
+| JavaScript generado | 1,498.02 kB; gzip 345.56 kB |
+| Advertencia de Vite | Paquete minificado superior a 500 kB; no bloqueó el build |
 
 El comando encadena typecheck, pruebas y build. Al terminar correctamente, las tres comprobaciones finalizaron sin errores bloqueantes.
 
@@ -164,4 +199,8 @@ Estos resultados corresponden a ese escenario concreto; no demuestran que A* exp
 
 Las pruebas de la variante B cubren costos ponderados, activación y desactivación del perfil, preservación del comportamiento de BFS y el consumidor `calculateRoute`. No constituyen una prueba de integración de la variante B dentro de la escena jugable. `GameScene.ts` no activa el perfil B por defecto.
 
-La validación automatizada pasó. La revisión del diff y la decisión humana de aceptación deben registrarse por separado.
+La validación automatizada pasó correctamente.
+
+### 7.4. Decisión humana
+
+Se revisaron los archivos de la práctica, la evidencia registrada y los resultados de validación.
